@@ -1,8 +1,13 @@
-import model # Import the python file containing the ML model
+#import model # Import the python file containing the ML model
 from flask import Flask, request, render_template # Import flask libraries
+import pickle
 
 # Initialize the flask class and specify the templates directory
-app = Flask(__name__,template_folder="templates")
+#app = Flask(__name__,template_folder="templates")
+app = Flask(__name__)
+
+model_file = open('model.pkl', 'rb')
+model = pickle.load(model_file, encoding='bytes')
 
 # Default route set as 'home'
 @app.route('/')
@@ -67,9 +72,13 @@ def classify_type():
             k9 = '0'
         else:
             k9 = '1'
-
+        data = [[k1, k2, k3, k4, k5, k6, k7, k8, k9]]
+        # Dictionary containing the mapping
+        variety_mappings = {0: 'Normal Gamer', 1: 'Risky Gamer', 2: 'Disorder Gamer'}
+        
         # Get the output from the classification model
-        variety = model.classify(k1, k2, k3, k4, k5, k6, k7, k8, k9)
+        hasil = model.predict(data)
+        variety = variety_mappings[hasil[0]]
 
         # Render the output in new HTML page
         return render_template('index.html', variety=variety)
